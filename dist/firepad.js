@@ -2959,7 +2959,7 @@ firepad.MonacoAdapter = (function() {
     _this = this;
     return {clear: function () {
          return _this.monaco.deltaDecorations(
-             _this.otherCursors[clientId], []);
+           (_this.otherCursors[clientId] || []), []);
         }
     };
   };
