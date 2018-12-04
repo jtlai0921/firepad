@@ -2719,7 +2719,6 @@ firepad.MonacoAdapter = (function() {
 
   function MonacoAdapter(monacoInstance) {
     this.onCursorActivity = __bind(this.onCursorActivity, this);
-    this.getEOL = __bind(this.getEOL, this);
     this.onFocus = __bind(this.onFocus, this);
     this.onBlur = __bind(this.onBlur, this);
     this.onChange = __bind(this.onChange, this);
@@ -2751,7 +2750,6 @@ firepad.MonacoAdapter = (function() {
     if (!this.ignoreChanges) {
       var offsetLength = 0
       change.changes.forEach(function(chan) {
-        chan.text = chan.text.replace(/\r\n/g, '\n')
         pair = this.operationFromMonacoChange(chan, offsetLength);
         offsetLength = offsetLength + (pair[0].targetLength - pair[0].baseLength)
         this.trigger.apply(this, ['change'].concat(__slice.call(pair)));
@@ -2777,20 +2775,16 @@ firepad.MonacoAdapter = (function() {
     }, 0);
   };
 
-  MonacoAdapter.prototype.getEOL = function () {
-    return '\n'
-  }
-
   MonacoAdapter.prototype.operationFromMonacoChange = function (change, offsetLength) {
     text = change.text;
     start = this.indexFromPos(change.range, 'start');
-    restLength = this.lastDocLines.join(this.getEOL()).length - start + offsetLength;
+    restLength = this.lastDocLines.join(this.monacoModel.getEOL()).length - start + offsetLength;
     text_ins = change.text;
     rangeLen = change.rangeLength;
 
     if (change.rangeLength > 0) {
       restLength -= rangeLen;
-      text = this.lastDocLines.join(this.getEOL())
+      text = this.lastDocLines.join(this.monacoModel.getEOL())
           .slice(start, start+rangeLen);
     }
 
@@ -2863,7 +2857,7 @@ firepad.MonacoAdapter = (function() {
       if (index <= line.length) {
         break;
       }
-      index -= line.length + this.getEOL().length;
+      index -= line.length + this.monacoModel.getEOL().length;
     }
     return {
       row: row + 1,
@@ -2880,12 +2874,12 @@ firepad.MonacoAdapter = (function() {
     index = 0;
     if (upto === 'start') {
       for (row = 1; row < range.startLineNumber; row++) {
-        index += lines[row-1].length + this.getEOL().length;
+        index += lines[row-1].length + this.monacoModel.getEOL().length;
       }
       return index + range.startColumn -1;
     } else {
       for (row = 1; row < range.endLineNumber; row++) {
-        index += lines[row-1].length + this.getEOL().length;
+        index += lines[row-1].length + this.monacoModel.getEOL().length;
       }
       return index + range.endColumn -1;
     }
